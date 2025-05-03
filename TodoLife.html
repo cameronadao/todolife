@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TodoLife</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+  <h1>TodoLife</h1>
+  <div class="todo-container">
+    <div class="input-group">
+      <input type="text" id="todoInput" class="todo-input" placeholder="Ajouter une tâche...">
+      <div id="error-message" style="display: none; color: red;">Merci d’écrire une tâche avant de l’ajouter.</div>
+      <input type="date" id="todoDate" class="todo-date">
+      <select id="prioritySelect" class="priority-select">
+        <option value="low">Basse</option>
+        <option value="medium">Moyenne</option>
+        <option value="high">Haute</option>
+      </select>
+    </div>
+    <div class="filters">
+      <button onclick="setFilter('all')" id="filter-all" class="active">Toutes</button>
+      <button onclick="setFilter('active')" id="filter-active">À faire</button>
+      <button onclick="setFilter('completed')" id="filter-completed">Complètes</button>
+    </div>
+    <div class="notification-toggle">
+      <label><input type="checkbox" id="notifToggle"> Activer les notifications pour les tâches en retard</label>
+    </div>
+    <div class="clear-all">
+      <button onclick="clearAllTodos()">Supprimer toutes les tâches</button>
+    </div>
+    <ul id="todoList" class="todo-list"></ul>
+  </div>
+
+  <script>
+    const todoInput = document.getElementById("todoInput");
+    const todoDate = document.getElementById("todoDate");
+    const todoList = document.getElementById("todoList");
+    const notifToggle = document.getElementById("notifToggle");
+    const filters = document.querySelectorAll(".filters button");
+
+    let todos = JSON.parse(localStorage.getItem("todolife-tasks")) || [];
+    let currentFilter = "all";
+    let notificationsEnabled = JSON.parse(localStorage.getItem("todolife-notifications"));
+
+    if (notificationsEnabled === null) {
+      notificationsEnabled = true;
+    }
+    notifToggle.checked = notificationsEnabled;
+
+    notifToggle.addEventListener("change", () => {
+      notificationsEnabled = notifToggle.checked;
+      localStorage.setItem("todolife-notifications", JSON.stringify(notificationsEnabled));
+    });
+
+    function saveTodos() {
+      localStorage.setItem("todolife-tasks", JSON.stringify(todos));
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      filters.forEach(btn => btn.classList.remove("active"));
+      document.getElementById(`filter-${filter}`).classList.add("active");
+      renderTodos();
+    }
+
+    function formatDate(dateString) {
+      const date = new Date(dateString);
+      const today = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(today.getDate() + 1);
+
+      if (date.toDateString() === today.toDateString()) {
+        return "Aujourd'hui";
+      } else if (date.toDateString() === tomorrow.toDateString()) {
+        return "Demain";
+      } else {
+        return date.toLocaleDateString("fr-FR");
+      }
+    }
+
+    function renderTodos() {
+      todoList.innerHTML = "";
+      let filtered = todos;
+      if (currentFilter === "active") {
+        filtered = todos.filter(t => !t.completed);
+      } else if (currentFilter === "completed") {
+        filtered = todos.filter(t => t.completed);
+      }
+
+      filtered.sort((a, b) => {
+        if (!a.date) return 1;
+        if (!b.date) return -1;
+        return new Date(a.date) - new Date(b.date);
+      });
+
+      const today = new Date().toISOString().split("T")[0];
+
+      filtered.forEach((todo, index) => {
+        const li = document.createElement("li");
+        const isOverdue = todo.date && todo.date < today && !todo.completed;
+        li.className = "todo-item" + (todo.completed ? " completed" : "") + (isOverdue ? " overdue" : "");
+        li.classList.add(todo.priority);
+        li.innerHTML = `
+          <div class="todo-info">
+            <span>${todo.text}</span><br>
+            <span class="todo-date-display">${todo.date ? "Échéance : " + formatDate(todo.date) : ""}</span>
+          </div>
+          <div class="buttons">
+            <button onclick="toggleComplete(${index})">✔</button>
+            <button onclick="deleteTodo(${index})">🗑</button>
+          </div>
+        `;
+        todoList.appendChild(li);
+
+        if (isOverdue && notificationsEnabled) {
+          triggerNotification(todo.text, todo.date);
+        }
+      });
+    }
+
+    function addTodo(text, date) {
+      const errorMessage = document.getElementById("error-message");
+      if (text.trim() === "") {
+        errorMessage.style.display = "block";
+        return;
+      } else {
+        errorMessage.style.display = "none";
+      }
+      const priority = document.getElementById("prioritySelect").value;
+      todos.push({ text, date, completed: false, priority });
+      saveTodos();
+      renderTodos();
+    }
+
+    function toggleComplete(index) {
+      todos[index].completed = !todos[index].completed;
+      saveTodos();
+      renderTodos();
+    }
+
+    function deleteTodo(index) {
+      todos.splice(index, 1);
+      saveTodos();
+      renderTodos();
+    }
+
+    function clearAllTodos() {
+      if (confirm("Es-tu sûr de vouloir supprimer toutes les tâches ?")) {
+        todos = [];
+        saveTodos();
+        renderTodos();
+      }
+    }
+
+    todoInput.addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        addTodo(todoInput.value, todoDate.value);
+        todoInput.value = "";
+        todoDate.value = "";
+      }
+    });
+
+    function triggerNotification(text, date) {
+      if (Notification.permission === "granted") {
+        new Notification("Tâche en retard", {
+          body: `${text} (échéance : ${date})`,
+          icon: "https://cdn-icons-png.flaticon.com/512/1828/1828843.png"
+        });
+      }
+    }
+
+    if ("Notification" in window && Notification.permission !== "granted") {
+      Notification.requestPermission();
+    }
+
+    renderTodos();
+  </script>
+</body>
+</html>
