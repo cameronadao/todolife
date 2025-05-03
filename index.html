@@ -6,11 +6,11 @@
   <title>TodoLife</title>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
-
 </head>
 <body>
   <h1>TodoLife</h1>
   <div class="todo-container">
+    <!-- Section d'ajout de tâche -->
     <div class="input-group">
       <input type="text" id="todoInput" class="todo-input" placeholder="Ajouter une tâche...">
       <div id="error-message" style="display: none; color: red;">Merci d’écrire une tâche avant de l’ajouter.</div>
@@ -20,24 +20,41 @@
         <option value="medium">Moyenne</option>
         <option value="high">Haute</option>
       </select>
+      <button onclick="addTodo()">Ajouter</button>
     </div>
+
+    <!-- Section de recherche -->
+    <div class="search-container">
+      <input type="text" id="searchInput" placeholder="Rechercher une tâche..." onkeyup="searchTasks()">
+    </div>
+
+    <!-- Section de filtres et tri -->
     <div class="filters">
       <button onclick="setFilter('all')" id="filter-all" class="active">Toutes</button>
       <button onclick="setFilter('active')" id="filter-active">À faire</button>
       <button onclick="setFilter('completed')" id="filter-completed">Complètes</button>
+      <select id="sortSelect" onchange="sortTodos()">
+        <option value="date">Trier par date</option>
+        <option value="priority">Trier par priorité</option>
+      </select>
     </div>
+
+    <!-- Section de notification et suppression -->
     <div class="notification-toggle">
       <label><input type="checkbox" id="notifToggle"> Activer les notifications pour les tâches en retard</label>
     </div>
     <div class="clear-all">
       <button onclick="clearAllTodos()">Supprimer toutes les tâches</button>
     </div>
+
+    <!-- Liste des tâches -->
     <ul id="todoList" class="todo-list"></ul>
   </div>
 
   <script>
     let todos = [];
     let filter = 'all';
+    let searchQuery = '';
 
     function addTodo() {
       const todoInput = document.getElementById("todoInput");
@@ -61,7 +78,19 @@
       todoDate.value = "";
       prioritySelect.value = "low";
 
+      saveTodos();
       renderTodos();
+    }
+
+    function saveTodos() {
+      localStorage.setItem('todos', JSON.stringify(todos));
+    }
+
+    function loadTodos() {
+      const storedTodos = localStorage.getItem('todos');
+      if (storedTodos) {
+        todos = JSON.parse(storedTodos);
+      }
     }
 
     function renderTodos() {
@@ -72,7 +101,7 @@
         if (filter === 'all') return true;
         if (filter === 'active') return !todo.completed;
         if (filter === 'completed') return todo.completed;
-      });
+      }).filter(todo => todo.task.toLowerCase().includes(searchQuery.toLowerCase()));
 
       filteredTodos.forEach((todo, index) => {
         const li = document.createElement("li");
@@ -99,16 +128,19 @@
 
     function toggleTodo(index) {
       todos[index].completed = !todos[index].completed;
+      saveTodos();
       renderTodos();
     }
 
     function deleteTodo(index) {
       todos.splice(index, 1);
+      saveTodos();
       renderTodos();
     }
 
     function clearAllTodos() {
       todos = [];
+      saveTodos();
       renderTodos();
     }
 
@@ -116,6 +148,26 @@
       filter = newFilter;
       document.querySelectorAll(".filters button").forEach(btn => btn.classList.remove("active"));
       document.getElementById(`filter-${newFilter}`).classList.add("active");
+      renderTodos();
+    }
+
+    function sortTodos() {
+      const sortSelect = document.getElementById("sortSelect");
+      const sortValue = sortSelect.value;
+
+      if (sortValue === "date") {
+        todos.sort((a, b) => new Date(a.date) - new Date(b.date));
+      } else if (sortValue === "priority") {
+        const priorityOrder = { "low": 1, "medium": 2, "high": 3 };
+        todos.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
+      }
+
+      saveTodos();
+      renderTodos();
+    }
+
+    function searchTasks() {
+      searchQuery = document.getElementById("searchInput").value;
       renderTodos();
     }
 
@@ -131,6 +183,7 @@
       }
     });
 
+    loadTodos();
     renderTodos();
   </script>
 </body>
