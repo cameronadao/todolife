@@ -1,68 +1,149 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>TodoLife</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Flag_of_France.svg/2560px-Flag_of_France.svg.png" type="image/png"/> 
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg/2880px-Flag_of_the_United_Kingdom_%281-2%29.svg.png" type="image/png"/>
 </head>
 <body>
-  <h1>TodoLife</h1>
+  <h1 id="appTitle">TodoLife</h1>
+
+  <!-- Sélecteur de langue avec icônes -->
+  <div class="language-selector">
+    <button onclick="setLanguage('fr')">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Flag_of_France.svg/2560px-Flag_of_France.svg.png" alt="Français" />
+    </button>
+    <button onclick="setLanguage('en')">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg/2880px-Flag_of_the_United_Kingdom_%281-2%29.svg.png" alt="English" />
+    </button>
+  </div>
+
   <div class="todo-container">
     <!-- Section d'ajout de tâche -->
     <div class="input-group">
-      <input type="text" id="todoInput" class="todo-input" placeholder="Ajouter une tâche...">
-      <div id="error-message" style="display: none; color: red;">Merci d’écrire une tâche avant de l’ajouter.</div>
-      <input type="date" id="todoDate" class="todo-date">
+      <input type="text" id="todoInput" class="todo-input" placeholder="" />
+      <div id="error-message" style="display: none; color: red;"></div>
+      <textarea id="todoDescription" class="todo-description" placeholder=""></textarea>
+      <input type="date" id="todoDate" class="todo-date"/>
       <select id="prioritySelect" class="priority-select">
-        <option value="low">Basse</option>
-        <option value="medium">Moyenne</option>
-        <option value="high">Haute</option>
+        <option value="low"></option>
+        <option value="medium"></option>
+        <option value="high"></option>
       </select>
-      <button onclick="addTodo()">Ajouter</button>
+      <button onclick="addTodo()" id="addButton"></button>
     </div>
 
     <!-- Section de recherche -->
     <div class="search-container">
-      <input type="text" id="searchInput" placeholder="Rechercher une tâche..." onkeyup="searchTasks()">
+      <input type="text" id="searchInput" placeholder="" onkeyup="searchTasks()"/>
     </div>
 
     <!-- Section de filtres et tri -->
     <div class="filters">
-      <button onclick="setFilter('all')" id="filter-all" class="active">Toutes</button>
-      <button onclick="setFilter('active')" id="filter-active">À faire</button>
-      <button onclick="setFilter('completed')" id="filter-completed">Complètes</button>
+      <button onclick="setFilter('all')" id="filter-all" class="active"></button>
+      <button onclick="setFilter('active')" id="filter-active"></button>
+      <button onclick="setFilter('completed')" id="filter-completed"></button>
       <select id="sortSelect" onchange="sortTodos()">
-        <option value="date">Trier par date</option>
-        <option value="priority">Trier par priorité</option>
+        <option value="date"></option>
+        <option value="priority"></option>
       </select>
     </div>
 
     <!-- Section de notification et suppression -->
     <div class="notification-toggle">
-      <label><input type="checkbox" id="notifToggle"> Activer les notifications pour les tâches en retard</label>
+      <label><input type="checkbox" id="notifToggle"/> </label>
     </div>
     <div class="clear-all">
-      <button onclick="clearAllTodos()">Supprimer toutes les tâches</button>
+      <button onclick="clearAllTodos()" id="clearAllButton"></button>
     </div>
 
     <!-- Liste des tâches -->
     <ul id="todoList" class="todo-list"></ul>
   </div>
 
+  <script src="app.js"></script>
+</body>
+</html>
+
   <script>
     let todos = [];
     let filter = 'all';
     let searchQuery = '';
+    let language = localStorage.getItem('language') || 'fr'; // Récupérer la langue choisie précédemment
+
+    // Fonction pour changer la langue
+    function setLanguage(lang) {
+      language = lang;
+      localStorage.setItem('language', lang); // Sauvegarder la langue dans localStorage
+      updateTexts(); // Mettre à jour les textes de l'interface
+      renderTodos(); // Rafraîchir les tâches pour s'assurer que les textes sont mis à jour
+    }
+
+    // Fonction pour mettre à jour tous les textes en fonction de la langue
+    function updateTexts() {
+      const texts = {
+        fr: {
+          title: 'TodoLife',
+          placeholderTask: "Ajouter une tâche...",
+          placeholderDescription: "Ajouter une description...",
+          addButton: "Ajouter",
+          errorMessage: "Merci d’écrire une tâche avant de l’ajouter.",
+          searchPlaceholder: "Rechercher une tâche...",
+          filterAll: "Toutes",
+          filterActive: "À faire",
+          filterCompleted: "Complètes",
+          sortByDate: "Trier par date",
+          sortByPriority: "Trier par priorité",
+          clearAllButton: "Supprimer toutes les tâches",
+          notifLabel: "Activer les notifications pour les tâches en retard"
+        },
+        en: {
+          title: 'TodoLife',
+          placeholderTask: "Add a task...",
+          placeholderDescription: "Add a description...",
+          addButton: "Add",
+          errorMessage: "Please write a task before adding.",
+          searchPlaceholder: "Search a task...",
+          filterAll: "All",
+          filterActive: "Active",
+          filterCompleted: "Completed",
+          sortByDate: "Sort by date",
+          sortByPriority: "Sort by priority",
+          clearAllButton: "Clear all tasks",
+          notifLabel: "Enable notifications for overdue tasks"
+        }
+      };
+
+      // Appliquer les textes de la langue choisie
+      const currentTexts = texts[language];
+      document.getElementById("appTitle").textContent = currentTexts.title;
+      document.getElementById("todoInput").placeholder = currentTexts.placeholderTask;
+      document.getElementById("todoDescription").placeholder = currentTexts.placeholderDescription;
+      document.getElementById("addButton").textContent = currentTexts.addButton;
+      document.getElementById("error-message").textContent = currentTexts.errorMessage;
+      document.getElementById("searchInput").placeholder = currentTexts.searchPlaceholder;
+      document.getElementById("filter-all").textContent = currentTexts.filterAll;
+      document.getElementById("filter-active").textContent = currentTexts.filterActive;
+      document.getElementById("filter-completed").textContent = currentTexts.filterCompleted;
+      document.getElementById("sortSelect").children[0].textContent = currentTexts.sortByDate;
+      document.getElementById("sortSelect").children[1].textContent = currentTexts.sortByPriority;
+      document.getElementById("clearAllButton").textContent = currentTexts.clearAllButton;
+      document.getElementById("notifToggle").nextSibling.nodeValue = currentTexts.notifLabel;
+    }
 
     function addTodo() {
       const todoInput = document.getElementById("todoInput");
+      const todoDescription = document.getElementById("todoDescription");
       const todoDate = document.getElementById("todoDate");
       const prioritySelect = document.getElementById("prioritySelect");
       const errorMessage = document.getElementById("error-message");
 
       const task = todoInput.value.trim();
+      const description = todoDescription.value.trim();
       const date = todoDate.value;
       const priority = prioritySelect.value;
 
@@ -73,8 +154,11 @@
         errorMessage.style.display = "none";
       }
 
-      todos.push({ task, date, priority, completed: false });
+      todos.push({ task, description, date, priority, completed: false });
+
+      // Reset inputs
       todoInput.value = "";
+      todoDescription.value = "";
       todoDate.value = "";
       prioritySelect.value = "low";
 
@@ -101,7 +185,10 @@
         if (filter === 'all') return true;
         if (filter === 'active') return !todo.completed;
         if (filter === 'completed') return todo.completed;
-      }).filter(todo => todo.task.toLowerCase().includes(searchQuery.toLowerCase()));
+      }).filter(todo => 
+        todo.task.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        (todo.description && todo.description.toLowerCase().includes(searchQuery.toLowerCase()))
+      );
 
       filteredTodos.forEach((todo, index) => {
         const li = document.createElement("li");
@@ -114,8 +201,17 @@
         li.appendChild(checkbox);
 
         const span = document.createElement("span");
-        span.textContent = `${todo.task} - ${todo.date || "Pas de date"} (${todo.priority})`;
-        li.appendChild(span);
+        span.innerHTML = `<strong>${todo.task}</strong> - ${todo.date || "No date"} (${todo.priority})`;
+        if (todo.description) {
+          const desc = document.createElement("div");
+          desc.textContent = todo.description;
+          desc.style.fontSize = "0.9em";
+          desc.style.color = "#555";
+          li.appendChild(span);
+          li.appendChild(desc);
+        } else {
+          li.appendChild(span);
+        }
 
         const deleteBtn = document.createElement("button");
         deleteBtn.textContent = "Supprimer";
@@ -151,21 +247,6 @@
       renderTodos();
     }
 
-    function sortTodos() {
-      const sortSelect = document.getElementById("sortSelect");
-      const sortValue = sortSelect.value;
-
-      if (sortValue === "date") {
-        todos.sort((a, b) => new Date(a.date) - new Date(b.date));
-      } else if (sortValue === "priority") {
-        const priorityOrder = { "low": 1, "medium": 2, "high": 3 };
-        todos.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
-      }
-
-      saveTodos();
-      renderTodos();
-    }
-
     function searchTasks() {
       searchQuery = document.getElementById("searchInput").value;
       renderTodos();
@@ -184,6 +265,7 @@
     });
 
     loadTodos();
+    updateTexts();
     renderTodos();
   </script>
 </body>

@@ -3,9 +3,9 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-  }
-  
-  body {
+}
+
+body {
     font-family: 'Poppins', sans-serif;
     background: linear-gradient(to right, #00b4d8, #00f5d4);
     display: flex;
@@ -13,110 +13,132 @@
     align-items: center;
     height: 100vh;
     color: #333;
-  }
-  
-  h1 {
+    flex-direction: column;
+}
+
+h1 {
     font-size: 3rem;
     color: white;
     text-align: center;
     margin-bottom: 20px;
-  }
-  
-  /* Todo container */
-  .todo-container {
+}
+
+/* Language Selector */
+.language-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.language-selector button {
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.language-selector button img {
+    width: 40px;
+    height: 25px;
+}
+
+/* Todo container */
+.todo-container {
     background-color: white;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     width: 100%;
     max-width: 500px;
-  }
-  
-  /* Input group */
-  .input-group {
+}
+
+/* Input group */
+.input-group {
     display: flex;
+    flex-wrap: wrap;
     gap: 10px;
     margin-bottom: 15px;
-  }
-  
-  .todo-input, .todo-date, .priority-select {
+}
+
+.todo-input,
+.todo-date,
+.priority-select {
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 1rem;
     width: 100%;
-  }
-  
-  .todo-input {
+}
+
+.todo-input {
     flex-grow: 1;
-  }
-  
-  .todo-date {
+}
+
+.todo-date {
     width: 150px;
-  }
-  
-  .priority-select {
+}
+
+.priority-select {
     width: 150px;
-  }
-  
-  /* Error message */
-  #error-message {
+}
+
+/* Error message */
+#error-message {
     margin-top: 5px;
     font-size: 0.9rem;
-  }
-  
-  /* Filters */
-  .filters {
+}
+
+/* Filters */
+.filters {
     display: flex;
     justify-content: space-around;
     margin-bottom: 20px;
-  }
-  
-  .filters button {
+}
+
+.filters button {
     background-color: #fff;
     border: 1px solid #ddd;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-  }
-  
-  .filters button.active {
+}
+
+.filters button.active {
     background-color: #00f5d4;
     color: white;
-  }
-  
-  /* Notifications */
-  .notification-toggle {
+}
+
+/* Notifications */
+.notification-toggle {
     margin-bottom: 20px;
     font-size: 1rem;
-  }
-  
-  /* Clear all button */
-  .clear-all {
+}
+
+/* Clear all button */
+.clear-all {
     text-align: center;
     margin-bottom: 20px;
-  }
-  
-  .clear-all button {
+}
+
+.clear-all button {
     background-color: #ff4d4d;
     color: white;
     border: none;
     padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
-  }
-  
-  .clear-all button:hover {
+}
+
+.clear-all button:hover {
     background-color: #ff1a1a;
-  }
-  
-  /* Todo list */
-  .todo-list {
+}
+
+/* Todo list */
+.todo-list {
     list-style: none;
     padding: 0;
-  }
-  
-  .todo-item {
+}
+
+.todo-item {
     display: flex;
     justify-content: space-between;
     background-color: #f9f9f9;
@@ -124,112 +146,91 @@
     margin-bottom: 10px;
     border-radius: 5px;
     border: 1px solid #ddd;
-  }
-  
-  .todo-item.completed {
+}
+
+.todo-item.completed {
     background-color: #d3ffd3;
     text-decoration: line-through;
-  }
-  
-  .todo-item.overdue {
+}
+
+.todo-item.overdue {
     border-left: 5px solid #ff4d4d;
-  }
-  
-  .todo-item.low {
+}
+
+.todo-item.low {
     background-color: #fff3e6;
-  }
-  
-  .todo-item.medium {
+}
+
+.todo-item.medium {
     background-color: #fff5b8;
-  }
-  
-  .todo-item.high {
+}
+
+.todo-item.high {
     background-color: #e0f7fa;
-  }
-  
-  /* Todo buttons */
-  .buttons {
+}
+
+/* Todo buttons */
+.buttons {
     display: flex;
     gap: 5px;
-  }
-  
-  .buttons button {
+}
+
+.buttons button {
     background-color: #00f5d4;
     border: none;
     padding: 5px 10px;
     border-radius: 5px;
     cursor: pointer;
-  }
-  
-  .buttons button:hover {
+}
+
+.buttons button:hover {
     background-color: #00b4d8;
-  }
-  
-  /* Responsive Styles */
-  
-  /* For screens 768px or smaller (tablets, mobiles) */
-  @media (max-width: 768px) {
+}
+
+/* Responsive Styles */
+
+/* For screens 768px or smaller (tablets, mobiles) */
+@media (max-width: 768px) {
     .todo-container {
-      padding: 15px;
+        padding: 15px;
+        max-width: 90%;
     }
-  
+
     .input-group {
-      flex-direction: column;
+        flex-direction: column;
     }
-  
-    .todo-input, .todo-date, .priority-select {
-      width: 100%;
-      margin-bottom: 10px;
+
+    .todo-input,
+    .todo-date,
+    .priority-select {
+        width: 100%;
     }
-  
+
     .filters {
-      flex-direction: column;
-      align-items: center;
+        flex-direction: column;
     }
-  
+
     .filters button {
-      margin-bottom: 10px;
+        margin-bottom: 10px;
     }
-  
-    .todo-item {
-      flex-direction: column;
-      align-items: flex-start;
-    }
-  
-    .todo-item .buttons {
-      width: 100%;
-      justify-content: flex-start;
-    }
-  
-    h1 {
-      font-size: 2.5rem;
-    }
-  }
-  
-  /* For screens smaller than 480px (mobile phones) */
-  @media (max-width: 480px) {
-    body {
-      padding: 10px;
-    }
-  
-    h1 {
-      font-size: 2rem;
-    }
-  
-    .todo-container {
-      max-width: 100%;
-      border-radius: 8px;
-    }
-  
-    .todo-input, .todo-date, .priority-select {
-      font-size: 0.9rem;
-    }
-  
-    .filters button {
-      font-size: 0.9rem;
-    }
-  
+
     .clear-all button {
-      font-size: 0.9rem;
+        width: 100%;
     }
-  }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 2rem;
+    }
+
+    .todo-item {
+        font-size: 0.9rem;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .todo-item button {
+        margin-top: 5px;
+    }
+}
