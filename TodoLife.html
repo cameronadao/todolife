@@ -36,146 +36,100 @@
   </div>
 
   <script>
-    const todoInput = document.getElementById("todoInput");
-    const todoDate = document.getElementById("todoDate");
-    const todoList = document.getElementById("todoList");
-    const notifToggle = document.getElementById("notifToggle");
-    const filters = document.querySelectorAll(".filters button");
+    let todos = [];
+    let filter = 'all';
 
-    let todos = JSON.parse(localStorage.getItem("todolife-tasks")) || [];
-    let currentFilter = "all";
-    let notificationsEnabled = JSON.parse(localStorage.getItem("todolife-notifications"));
-
-    if (notificationsEnabled === null) {
-      notificationsEnabled = true;
-    }
-    notifToggle.checked = notificationsEnabled;
-
-    notifToggle.addEventListener("change", () => {
-      notificationsEnabled = notifToggle.checked;
-      localStorage.setItem("todolife-notifications", JSON.stringify(notificationsEnabled));
-    });
-
-    function saveTodos() {
-      localStorage.setItem("todolife-tasks", JSON.stringify(todos));
-    }
-
-    function setFilter(filter) {
-      currentFilter = filter;
-      filters.forEach(btn => btn.classList.remove("active"));
-      document.getElementById(`filter-${filter}`).classList.add("active");
-      renderTodos();
-    }
-
-    function formatDate(dateString) {
-      const date = new Date(dateString);
-      const today = new Date();
-      const tomorrow = new Date();
-      tomorrow.setDate(today.getDate() + 1);
-
-      if (date.toDateString() === today.toDateString()) {
-        return "Aujourd'hui";
-      } else if (date.toDateString() === tomorrow.toDateString()) {
-        return "Demain";
-      } else {
-        return date.toLocaleDateString("fr-FR");
-      }
-    }
-
-    function renderTodos() {
-      todoList.innerHTML = "";
-      let filtered = todos;
-      if (currentFilter === "active") {
-        filtered = todos.filter(t => !t.completed);
-      } else if (currentFilter === "completed") {
-        filtered = todos.filter(t => t.completed);
-      }
-
-      filtered.sort((a, b) => {
-        if (!a.date) return 1;
-        if (!b.date) return -1;
-        return new Date(a.date) - new Date(b.date);
-      });
-
-      const today = new Date().toISOString().split("T")[0];
-
-      filtered.forEach((todo, index) => {
-        const li = document.createElement("li");
-        const isOverdue = todo.date && todo.date < today && !todo.completed;
-        li.className = "todo-item" + (todo.completed ? " completed" : "") + (isOverdue ? " overdue" : "");
-        li.classList.add(todo.priority);
-        li.innerHTML = `
-          <div class="todo-info">
-            <span>${todo.text}</span><br>
-            <span class="todo-date-display">${todo.date ? "Échéance : " + formatDate(todo.date) : ""}</span>
-          </div>
-          <div class="buttons">
-            <button onclick="toggleComplete(${index})">✔</button>
-            <button onclick="deleteTodo(${index})">🗑</button>
-          </div>
-        `;
-        todoList.appendChild(li);
-
-        if (isOverdue && notificationsEnabled) {
-          triggerNotification(todo.text, todo.date);
-        }
-      });
-    }
-
-    function addTodo(text, date) {
+    function addTodo() {
+      const todoInput = document.getElementById("todoInput");
+      const todoDate = document.getElementById("todoDate");
+      const prioritySelect = document.getElementById("prioritySelect");
       const errorMessage = document.getElementById("error-message");
-      if (text.trim() === "") {
+
+      const task = todoInput.value.trim();
+      const date = todoDate.value;
+      const priority = prioritySelect.value;
+
+      if (!task) {
         errorMessage.style.display = "block";
         return;
       } else {
         errorMessage.style.display = "none";
       }
-      const priority = document.getElementById("prioritySelect").value;
-      todos.push({ text, date, completed: false, priority });
-      saveTodos();
+
+      todos.push({ task, date, priority, completed: false });
+      todoInput.value = "";
+      todoDate.value = "";
+      prioritySelect.value = "low";
+
       renderTodos();
     }
 
-    function toggleComplete(index) {
+    function renderTodos() {
+      const todoList = document.getElementById("todoList");
+      todoList.innerHTML = "";
+
+      const filteredTodos = todos.filter(todo => {
+        if (filter === 'all') return true;
+        if (filter === 'active') return !todo.completed;
+        if (filter === 'completed') return todo.completed;
+      });
+
+      filteredTodos.forEach((todo, index) => {
+        const li = document.createElement("li");
+        li.className = `todo-item ${todo.completed ? "completed" : ""} ${todo.priority}`;
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = todo.completed;
+        checkbox.addEventListener("change", () => toggleTodo(index));
+        li.appendChild(checkbox);
+
+        const span = document.createElement("span");
+        span.textContent = `${todo.task} - ${todo.date || "Pas de date"} (${todo.priority})`;
+        li.appendChild(span);
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "Supprimer";
+        deleteBtn.addEventListener("click", () => deleteTodo(index));
+        li.appendChild(deleteBtn);
+
+        todoList.appendChild(li);
+      });
+    }
+
+    function toggleTodo(index) {
       todos[index].completed = !todos[index].completed;
-      saveTodos();
       renderTodos();
     }
 
     function deleteTodo(index) {
       todos.splice(index, 1);
-      saveTodos();
       renderTodos();
     }
 
     function clearAllTodos() {
-      if (confirm("Es-tu sûr de vouloir supprimer toutes les tâches ?")) {
-        todos = [];
-        saveTodos();
-        renderTodos();
-      }
+      todos = [];
+      renderTodos();
     }
 
-    todoInput.addEventListener("keypress", function (e) {
-      if (e.key === "Enter") {
-        addTodo(todoInput.value, todoDate.value);
-        todoInput.value = "";
-        todoDate.value = "";
-      }
+    function setFilter(newFilter) {
+      filter = newFilter;
+      document.querySelectorAll(".filters button").forEach(btn => btn.classList.remove("active"));
+      document.getElementById(`filter-${newFilter}`).classList.add("active");
+      renderTodos();
+    }
+
+    document.getElementById("todoInput").addEventListener("keypress", function(e) {
+      if (e.key === "Enter") addTodo();
     });
 
-    function triggerNotification(text, date) {
-      if (Notification.permission === "granted") {
-        new Notification("Tâche en retard", {
-          body: `${text} (échéance : ${date})`,
-          icon: "https://cdn-icons-png.flaticon.com/512/1828/1828843.png"
-        });
+    document.getElementById("notifToggle").addEventListener("change", function() {
+      if (this.checked) {
+        alert("Notifications activées ! (Simulées)");
+      } else {
+        alert("Notifications désactivées.");
       }
-    }
-
-    if ("Notification" in window && Notification.permission !== "granted") {
-      Notification.requestPermission();
-    }
+    });
 
     renderTodos();
   </script>
