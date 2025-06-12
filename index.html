@@ -99,7 +99,10 @@
           sortByDate: "Trier par date",
           sortByPriority: "Trier par priorité",
           clearAllButton: "Supprimer toutes les tâches",
-          notifLabel: "Activer les notifications pour les tâches en retard"
+          notifLabel: "Activer les notifications pour les tâches en retard",
+          priorityLow: "Basse",
+          priorityMedium: "Moyenne",
+          priorityHigh: "Haute",
         },
         en: {
           title: 'TodoLife',
@@ -114,9 +117,14 @@
           sortByDate: "Sort by date",
           sortByPriority: "Sort by priority",
           clearAllButton: "Clear all tasks",
-          notifLabel: "Enable notifications for overdue tasks"
+          notifLabel: "Enable notifications for overdue tasks",
+          priorityLow: "Low",
+          priorityMedium: "Medium",
+          priorityHigh: "High",
         }
       };
+
+      
 
       // Appliquer les textes de la langue choisie
       const currentTexts = texts[language];
@@ -133,6 +141,9 @@
       document.getElementById("sortSelect").children[1].textContent = currentTexts.sortByPriority;
       document.getElementById("clearAllButton").textContent = currentTexts.clearAllButton;
       document.getElementById("notifToggle").nextSibling.nodeValue = currentTexts.notifLabel;
+      document.getElementById("prioritySelect").children[0].textContent = currentTexts.priorityLow;
+      document.getElementById("prioritySelect").children[1].textContent = currentTexts.priorityMedium;
+      document.getElementById("prioritySelect").children[2].textContent = currentTexts.priorityHigh;
     }
 
     function addTodo() {
