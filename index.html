@@ -1,283 +1,194 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>TodoLife</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css" />
-  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Flag_of_France.svg/2560px-Flag_of_France.svg.png" type="image/png"/> 
-  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg/2880px-Flag_of_the_United_Kingdom_%281-2%29.svg.png" type="image/png"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TodoLife - Gestion de Tâches Professionnelle</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 <body>
-  <h1 id="appTitle">TodoLife</h1>
+    <div class="main-container">
+        <!-- Notification Container -->
+        <div class="notification-container" id="notification-container"></div>
 
-  <!-- Sélecteur de langue avec icônes -->
-  <div class="language-selector">
-    <button onclick="setLanguage('fr')">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c3/Flag_of_France.svg/2560px-Flag_of_France.svg.png" alt="Français" />
-    </button>
-    <button onclick="setLanguage('en')">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Flag_of_the_United_Kingdom_%281-2%29.svg/2880px-Flag_of_the_United_Kingdom_%281-2%29.svg.png" alt="English" />
-    </button>
-  </div>
+        <!-- App Header -->
+        <header class="app-header">
+            <h1 class="app-title">TodoLife Pro</h1>
+            <div class="app-controls">
+                <select class="language-selector" id="language-selector">
+                    <option value="fr">🇫🇷 Français</option>
+                    <option value="en">🇬🇧 English</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="de">🇩🇪 Deutsch</option>
+                </select>
+                <button class="theme-toggle" id="theme-toggle">
+                    <i class="bi bi-moon-fill"></i>
+                </button>
+            </div>
+        </header>
 
-  <div class="todo-container">
-    <!-- Section d'ajout de tâche -->
-    <div class="input-group">
-      <input type="text" id="todoInput" class="todo-input" placeholder="" />
-      <div id="error-message" style="display: none; color: red;"></div>
-      <textarea id="todoDescription" class="todo-description" placeholder=""></textarea>
-      <input type="date" id="todoDate" class="todo-date"/>
-      <select id="prioritySelect" class="priority-select">
-        <option value="low"></option>
-        <option value="medium"></option>
-        <option value="high"></option>
-      </select>
-      <button onclick="addTodo()" id="addButton"></button>
+        <!-- Stats Section -->
+        <section class="stats-container">
+            <div class="stat-card">
+                <div class="stat-icon text-primary">
+                    <i class="bi bi-list-task"></i>
+                </div>
+                <div class="stat-number" id="total-tasks">0</div>
+                <div class="stat-label" data-i18n="totalTasks">Total Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon text-warning">
+                    <i class="bi bi-hourglass-split"></i>
+                </div>
+                <div class="stat-number" id="pending-tasks">0</div>
+                <div class="stat-label" data-i18n="pendingTasks">Pending Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon text-success">
+                    <i class="bi bi-check-circle-fill"></i>
+                </div>
+                <div class="stat-number" id="completed-tasks">0</div>
+                <div class="stat-label" data-i18n="completedTasks">Completed Tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon text-danger">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                </div>
+                <div class="stat-number" id="overdue-tasks">0</div>
+                <div class="stat-label" data-i18n="overdueTasks">Overdue Tasks</div>
+            </div>
+        </section>
+
+        <!-- Task Form -->
+        <section class="task-form-container">
+            <h2 class="mb-4" data-i18n="addNewTask">Add New Task</h2>
+            <form id="task-form">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="task-title" class="form-label" data-i18n="taskTitle">Task Title</label>
+                            <input type="text" class="form-control" id="task-title" required>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="task-category" class="form-label" data-i18n="category">Category</label>
+                            <select class="form-select" id="task-category">
+                                <option value="work" data-i18n="work">Work</option>
+                                <option value="personal" data-i18n="personal">Personal</option>
+                                <option value="shopping" data-i18n="shopping">Shopping</option>
+                                <option value="health" data-i18n="health">Health</option>
+                                <option value="other" data-i18n="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="task-priority" class="form-label" data-i18n="priority">Priority</label>
+                            <select class="form-select" id="task-priority">
+                                <option value="low" data-i18n="low">Low</option>
+                                <option value="medium" data-i18n="medium">Medium</option>
+                                <option value="high" data-i18n="high">High</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="task-due-date" class="form-label" data-i18n="dueDate">Due Date</label>
+                            <input type="date" class="form-control" id="task-due-date">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="task-description" class="form-label" data-i18n="description">Description</label>
+                    <textarea class="form-control" id="task-description" rows="3"></textarea>
+                </div>
+                <div class="text-end">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-plus-circle me-2"></i>
+                        <span data-i18n="addTask">Add Task</span>
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <!-- Tasks Section -->
+        <section class="tasks-container">
+            <div class="tasks-header">
+                <h2 class="tasks-title" data-i18n="myTasks">My Tasks</h2>
+                <div class="filter-container">
+                    <button class="filter-btn active" data-filter="all" data-i18n="all">All</button>
+                    <button class="filter-btn" data-filter="active" data-i18n="active">Active</button>
+                    <button class="filter-btn" data-filter="completed" data-i18n="completed">Completed</button>
+                    <button class="filter-btn" data-filter="overdue" data-i18n="overdue">Overdue</button>
+                </div>
+            </div>
+            <ul class="task-list" id="task-list">
+                <!-- Tasks will be dynamically added here -->
+            </ul>
+            <div class="empty-state" id="empty-state">
+                <i class="bi bi-clipboard-x"></i>
+                <p data-i18n="noTasks">No tasks found. Add a new task to get started!</p>
+            </div>
+        </section>
     </div>
 
-    <!-- Section de recherche -->
-    <div class="search-container">
-      <input type="text" id="searchInput" placeholder="" onkeyup="searchTasks()"/>
+    <!-- Edit Task Modal -->
+    <div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" data-i18n="editTask">Edit Task</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="edit-task-form">
+                        <input type="hidden" id="edit-task-id">
+                        <div class="form-group">
+                            <label for="edit-task-title" class="form-label" data-i18n="taskTitle">Task Title</label>
+                            <input type="text" class="form-control" id="edit-task-title" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-task-category" class="form-label" data-i18n="category">Category</label>
+                            <select class="form-select" id="edit-task-category">
+                                <option value="work" data-i18n="work">Work</option>
+                                <option value="personal" data-i18n="personal">Personal</option>
+                                <option value="shopping" data-i18n="shopping">Shopping</option>
+                                <option value="health" data-i18n="health">Health</option>
+                                <option value="other" data-i18n="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-task-priority" class="form-label" data-i18n="priority">Priority</label>
+                            <select class="form-select" id="edit-task-priority">
+                                <option value="low" data-i18n="low">Low</option>
+                                <option value="medium" data-i18n="medium">Medium</option>
+                                <option value="high" data-i18n="high">High</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-task-due-date" class="form-label" data-i18n="dueDate">Due Date</label>
+                            <input type="date" class="form-control" id="edit-task-due-date">
+                        </div>
+                        <div class="form-group">
+                            <label for="edit-task-description" class="form-label" data-i18n="description">Description</label>
+                            <textarea class="form-control" id="edit-task-description" rows="3"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-i18n="cancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="save-task-changes" data-i18n="saveChanges">Save Changes</button>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <!-- Section de filtres et tri -->
-    <div class="filters">
-      <button onclick="setFilter('all')" id="filter-all" class="active"></button>
-      <button onclick="setFilter('active')" id="filter-active"></button>
-      <button onclick="setFilter('completed')" id="filter-completed"></button>
-      <select id="sortSelect" onchange="sortTodos()">
-        <option value="date"></option>
-        <option value="priority"></option>
-      </select>
-    </div>
-
-    <!-- Section de notification et suppression -->
-    <div class="notification-toggle">
-      <label><input type="checkbox" id="notifToggle"/> </label>
-    </div>
-    <div class="clear-all">
-      <button onclick="clearAllTodos()" id="clearAllButton"></button>
-    </div>
-
-    <!-- Liste des tâches -->
-    <ul id="todoList" class="todo-list"></ul>
-  </div>
-
-  <script src="app.js"></script>
-</body>
-</html>
-
-  <script>
-    let todos = [];
-    let filter = 'all';
-    let searchQuery = '';
-    let language = localStorage.getItem('language') || 'fr'; // Récupérer la langue choisie précédemment
-
-    // Fonction pour changer la langue
-    function setLanguage(lang) {
-      language = lang;
-      localStorage.setItem('language', lang); // Sauvegarder la langue dans localStorage
-      updateTexts(); // Mettre à jour les textes de l'interface
-      renderTodos(); // Rafraîchir les tâches pour s'assurer que les textes sont mis à jour
-    }
-
-    // Fonction pour mettre à jour tous les textes en fonction de la langue
-    function updateTexts() {
-      const texts = {
-        fr: {
-          title: 'TodoLife',
-          placeholderTask: "Ajouter une tâche...",
-          placeholderDescription: "Ajouter une description...",
-          addButton: "Ajouter",
-          errorMessage: "Merci d’écrire une tâche avant de l’ajouter.",
-          searchPlaceholder: "Rechercher une tâche...",
-          filterAll: "Toutes",
-          filterActive: "À faire",
-          filterCompleted: "Complètes",
-          sortByDate: "Trier par date",
-          sortByPriority: "Trier par priorité",
-          clearAllButton: "Supprimer toutes les tâches",
-          notifLabel: "Activer les notifications pour les tâches en retard",
-          priorityLow: "Basse",
-          priorityMedium: "Moyenne",
-          priorityHigh: "Haute",
-        },
-        en: {
-          title: 'TodoLife',
-          placeholderTask: "Add a task...",
-          placeholderDescription: "Add a description...",
-          addButton: "Add",
-          errorMessage: "Please write a task before adding.",
-          searchPlaceholder: "Search a task...",
-          filterAll: "All",
-          filterActive: "Active",
-          filterCompleted: "Completed",
-          sortByDate: "Sort by date",
-          sortByPriority: "Sort by priority",
-          clearAllButton: "Clear all tasks",
-          notifLabel: "Enable notifications for overdue tasks",
-          priorityLow: "Low",
-          priorityMedium: "Medium",
-          priorityHigh: "High",
-        }
-      };
-
-      
-
-      // Appliquer les textes de la langue choisie
-      const currentTexts = texts[language];
-      document.getElementById("appTitle").textContent = currentTexts.title;
-      document.getElementById("todoInput").placeholder = currentTexts.placeholderTask;
-      document.getElementById("todoDescription").placeholder = currentTexts.placeholderDescription;
-      document.getElementById("addButton").textContent = currentTexts.addButton;
-      document.getElementById("error-message").textContent = currentTexts.errorMessage;
-      document.getElementById("searchInput").placeholder = currentTexts.searchPlaceholder;
-      document.getElementById("filter-all").textContent = currentTexts.filterAll;
-      document.getElementById("filter-active").textContent = currentTexts.filterActive;
-      document.getElementById("filter-completed").textContent = currentTexts.filterCompleted;
-      document.getElementById("sortSelect").children[0].textContent = currentTexts.sortByDate;
-      document.getElementById("sortSelect").children[1].textContent = currentTexts.sortByPriority;
-      document.getElementById("clearAllButton").textContent = currentTexts.clearAllButton;
-      document.getElementById("notifToggle").nextSibling.nodeValue = currentTexts.notifLabel;
-      document.getElementById("prioritySelect").children[0].textContent = currentTexts.priorityLow;
-      document.getElementById("prioritySelect").children[1].textContent = currentTexts.priorityMedium;
-      document.getElementById("prioritySelect").children[2].textContent = currentTexts.priorityHigh;
-    }
-
-    function addTodo() {
-      const todoInput = document.getElementById("todoInput");
-      const todoDescription = document.getElementById("todoDescription");
-      const todoDate = document.getElementById("todoDate");
-      const prioritySelect = document.getElementById("prioritySelect");
-      const errorMessage = document.getElementById("error-message");
-
-      const task = todoInput.value.trim();
-      const description = todoDescription.value.trim();
-      const date = todoDate.value;
-      const priority = prioritySelect.value;
-
-      if (!task) {
-        errorMessage.style.display = "block";
-        return;
-      } else {
-        errorMessage.style.display = "none";
-      }
-
-      todos.push({ task, description, date, priority, completed: false });
-
-      // Reset inputs
-      todoInput.value = "";
-      todoDescription.value = "";
-      todoDate.value = "";
-      prioritySelect.value = "low";
-
-      saveTodos();
-      renderTodos();
-    }
-
-    function saveTodos() {
-      localStorage.setItem('todos', JSON.stringify(todos));
-    }
-
-    function loadTodos() {
-      const storedTodos = localStorage.getItem('todos');
-      if (storedTodos) {
-        todos = JSON.parse(storedTodos);
-      }
-    }
-
-    function renderTodos() {
-      const todoList = document.getElementById("todoList");
-      todoList.innerHTML = "";
-
-      const filteredTodos = todos.filter(todo => {
-        if (filter === 'all') return true;
-        if (filter === 'active') return !todo.completed;
-        if (filter === 'completed') return todo.completed;
-      }).filter(todo => 
-        todo.task.toLowerCase().includes(searchQuery.toLowerCase()) || 
-        (todo.description && todo.description.toLowerCase().includes(searchQuery.toLowerCase()))
-      );
-
-      filteredTodos.forEach((todo, index) => {
-        const li = document.createElement("li");
-        li.className = `todo-item ${todo.completed ? "completed" : ""} ${todo.priority}`;
-
-        const checkbox = document.createElement("input");
-        checkbox.type = "checkbox";
-        checkbox.checked = todo.completed;
-        checkbox.addEventListener("change", () => toggleTodo(index));
-        li.appendChild(checkbox);
-
-        const span = document.createElement("span");
-        span.innerHTML = `<strong>${todo.task}</strong> - ${todo.date || "No date"} (${todo.priority})`;
-        if (todo.description) {
-          const desc = document.createElement("div");
-          desc.textContent = todo.description;
-          desc.style.fontSize = "0.9em";
-          desc.style.color = "#555";
-          li.appendChild(span);
-          li.appendChild(desc);
-        } else {
-          li.appendChild(span);
-        }
-
-        const deleteBtn = document.createElement("button");
-        deleteBtn.textContent = "Supprimer";
-        deleteBtn.addEventListener("click", () => deleteTodo(index));
-        li.appendChild(deleteBtn);
-
-        todoList.appendChild(li);
-      });
-    }
-
-    function toggleTodo(index) {
-      todos[index].completed = !todos[index].completed;
-      saveTodos();
-      renderTodos();
-    }
-
-    function deleteTodo(index) {
-      todos.splice(index, 1);
-      saveTodos();
-      renderTodos();
-    }
-
-    function clearAllTodos() {
-      todos = [];
-      saveTodos();
-      renderTodos();
-    }
-
-    function setFilter(newFilter) {
-      filter = newFilter;
-      document.querySelectorAll(".filters button").forEach(btn => btn.classList.remove("active"));
-      document.getElementById(`filter-${newFilter}`).classList.add("active");
-      renderTodos();
-    }
-
-    function searchTasks() {
-      searchQuery = document.getElementById("searchInput").value;
-      renderTodos();
-    }
-
-    document.getElementById("todoInput").addEventListener("keypress", function(e) {
-      if (e.key === "Enter") addTodo();
-    });
-
-    document.getElementById("notifToggle").addEventListener("change", function() {
-      if (this.checked) {
-        alert("Notifications activées ! (Simulées)");
-      } else {
-        alert("Notifications désactivées.");
-      }
-    });
-
-    loadTodos();
-    updateTexts();
-    renderTodos();
-  </script>
+    <!-- Scripts --> 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
